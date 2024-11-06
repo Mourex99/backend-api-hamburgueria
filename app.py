@@ -1,16 +1,24 @@
 from flask import Flask, jsonify, request
 from flask_sqlalchemy import SQLAlchemy
 from flask_cors import CORS
+from flask import make_response
 
 app = Flask(__name__)
 
-CORS(app, resources={r"/clientes/*": {"origins": "*"}}, methods=["GET", "POST", "PUT", "DELETE"])
+CORS(app, resources={r"/clientes/*": {"origins": "*"}})
 
 
 # Configuração do banco de dados SQLite
 app.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite:///clientes.db'
 app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
 db = SQLAlchemy(app)
+
+@app.after_request
+def apply_cors(response):
+    response.headers["Access-Control-Allow-Origin"] = "*"
+    response.headers["Access-Control-Allow-Methods"] = "GET, POST, PUT, DELETE, OPTIONS"
+    response.headers["Access-Control-Allow-Headers"] = "Content-Type, Authorization"
+    return response
 
 # Definindo o modelo de dados
 class Cliente(db.Model):
